@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import Notes from '../utils/Notes';
+import NoteBlock from './NoteBlock'
+import Scale from './Scale'
 class Main extends Component {
 	constructor(props) {
 		super(props);
@@ -12,19 +14,20 @@ class Main extends Component {
 		this.masterGainNode = this.audioContext.createGain();
 		this.masterGainNode.connect(this.audioContext.destination);
 		this.masterGainNode.gain.value = this.state.volume;
-	}
 
-	componentWillMount() {
-		// this.getTone(261.625565)
+		this.osc = this.audioContext.createOscillator();
+		this.osc.connect(this.masterGainNode)
 	}
 
 	handleVolumeChange(e){
-		this.setState({volume: e.target.value});
-		// this.getTone(261.625565)
+		this.setState({volume: e.target.value}, () => {
+			this.masterGainNode.gain.value = this.state.volume;
+			this.osc.connect(this.masterGainNode)
+
+		});
 	}
 	handleWaveChange(e){
 		this.setState({waveSelected: e.target.value});
-		// this.getTone(261.625565)
 	}
 
 	init(){
@@ -44,8 +47,7 @@ class Main extends Component {
 	}
 
 	getTone(freq){
-		this.osc = this.audioContext.createOscillator();
-		this.osc.connect(this.masterGainNode)
+
 		if (this.state.waveSelected == "custom") {
 			this.osc.setPeriodicWave(customWaveform);
 		} else {
@@ -77,6 +79,7 @@ class Main extends Component {
 						<option value="1.0" label="100%" />
 					</datalist>
 				</div>
+				<div>{this.masterGainNode.gain.value}</div>
 				<div className="right">
 					<span>Current waveform: </span>
 					<select 
@@ -91,20 +94,20 @@ class Main extends Component {
 						<option value="custom">Custom</option>
 					</select>
 				</div>
-				<div onMouseDown={()=>this.getTone(261.625565)} onMouseUp={()=>this.osc.stop()}>Click Me</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('C', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('C')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('Csharp', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('Csharp')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('D', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('D')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('Eflat', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('Eflat')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('E', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('E')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('F', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('F')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('Fsharp', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('Fsharp')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('G', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('G')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('Gsharp', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('Gsharp')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('A', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('A')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('Bflat', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('Bflat')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('B', 4))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('B')}</div>
-				<div onMouseDown={()=>this.getTone(Notes.getFrequency('C', 5))} onMouseUp={()=>this.osc.stop()}>{Notes.getShortText('C')}</div>
+				<Scale
+					scale={'Cmaj'}
+					octave={4}
+					waveform={this.state.waveSelected}
+					audioContext={this.audioContext}
+					gainNode={this.masterGainNode}
+				/>
+				<Scale
+					scale={'Eflatmin'}
+					octave={4}
+					waveform={this.state.waveSelected}
+					audioContext={this.audioContext}
+					gainNode={this.masterGainNode}
+				/>
 			</div>
 		)
 	}
